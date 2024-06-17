@@ -12,7 +12,7 @@ def test_load_data():
     data = load_vol(fn, dtype=np.uint8)
 
     shape = (2, 3, 4)
-    expected_data = np.arange(np.product(shape), dtype=np.uint8).reshape(shape)
+    expected_data = np.arange(np.prod(shape), dtype=np.uint8).reshape(shape)
 
     assert data.shape == shape
     np.testing.assert_equal(data, expected_data)
