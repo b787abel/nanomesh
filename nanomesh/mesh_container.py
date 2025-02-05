@@ -384,8 +384,26 @@ class MeshContainer(meshio.Mesh, PruneZ0Mixin):
         -------
         MeshContainer
         """
-        from meshio import read
-        mesh = read(*args, **kwargs)
+        from meshio import Mesh
+
+        ele_filename = args[0]
+        node_filename = ele_filename.with_suffix('.node')
+
+        # read ele file 
+        with open(ele_filename, "r") as f:
+            lines = f.readlines()
+        num_elements = int(lines[0].split()[0])
+        elements = np.array([list(map(int, line.split()[1:])) for line in lines[1:num_elements+1]]) - 1
+        cells = [("tetra", elements)]  # TetGen outputs tetrahedral elements
+
+        # read node file 
+        with open(node_filename, "r") as f:
+            lines = f.readlines()
+        num_nodes = int(lines[0].split()[0])
+        points = np.array([list(map(float, line.split()[1:])) for line in lines[1:num_nodes+1]])
+
+
+        mesh = Mesh(points=points, cells=cells) 
 
         cell_data = {}
         for key, value in mesh.cell_data.items():
