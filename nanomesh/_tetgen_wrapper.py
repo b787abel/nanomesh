@@ -111,7 +111,7 @@ def call_tetgen(fname: os.PathLike, opts: str = '-pAq'):
 @doc(prefix='Tetrahedralize a surface mesh')
 def tetrahedralize(mesh: TriangleMesh,
                    opts: str | dict = '-pAq',
-                   default_opts: dict = None) -> MeshContainer:
+                   default_opts: dict = None, folder = None) -> MeshContainer:
     """{prefix}.
 
     Parameters
@@ -145,8 +145,18 @@ def tetrahedralize(mesh: TriangleMesh,
 
     opts = _to_opts_string(opts, defaults=default_opts, prefix='-', sep=' ')
 
-    with tempfile.TemporaryDirectory() as tmp:
-        path = Path(tmp, 'nanomesh.smesh')
+    if folder is None: 
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp, 'nanomesh.smesh')
+            write_smesh(path, mesh)
+            call_tetgen(path, opts)
+
+            tetras = MeshContainer.read(path.with_suffix('.1.ele'))
+    else: 
+        #Check if folder exists, if not, create one 
+        if not os.path.exists(folder): 
+            os.makedirs(folder)
+        path = Path(folder, 'nanomesh.smesh')
         write_smesh(path, mesh)
         call_tetgen(path, opts)
 
